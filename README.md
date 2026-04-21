@@ -43,14 +43,10 @@ No runtime Anthropic API calls. All sync is git over SSH/HTTPS.
 Requires Node 20+ and git. macOS or Linux.
 
 ```bash
-npm install -g claude-code-memory
-```
-
-Or install directly from the GitHub repo (before a release is published to the npm registry):
-
-```bash
 npm install -g github:davandbau/claude-code-memory
 ```
+
+_A tagged release on the npm registry (`npm install -g claude-code-memory`) is coming once v0.2.1 is hardened on two machines. Until then, install from the GitHub repo as above — you'll get `main`._
 
 ## First-time setup
 
