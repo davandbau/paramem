@@ -5,7 +5,7 @@ import path from "node:path";
 export const HOME = homedir();
 
 export function repoPath() {
-  return process.env.MEMORY_REPO || path.join(HOME, ".claude", "memory");
+  return process.env.PARAMEM_REPO || process.env.MEMORY_REPO || path.join(HOME, ".claude", "memory");
 }
 
 export function logsDir() {

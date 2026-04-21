@@ -1,11 +1,10 @@
 {
-  "name": "claude-code-memory",
-  "version": "0.2.1",
-  "description": "Persistent, git-synced memory for Claude Code. PARA-organized context loaded automatically on every session, shared across machines in near-real time.",
+  "name": "paramem",
+  "version": "0.3.0",
+  "description": "Persistent, git-synced PARA memory for Claude Code. Context loaded automatically on every session, shared across machines in near-real time, organized autonomously every night.",
   "type": "module",
   "bin": {
-    "claude-code-memory": "./src/cli.js",
-    "ccm": "./src/cli.js"
+    "paramem": "./src/cli.js"
   },
   "scripts": {
     "test": "node --test test/*.test.js",
@@ -36,12 +35,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/davandbau/claude-code-memory.git"
+    "url": "git+https://github.com/davandbau/paramem.git"
   },
   "bugs": {
-    "url": "https://github.com/davandbau/claude-code-memory/issues"
+    "url": "https://github.com/davandbau/paramem/issues"
   },
-  "homepage": "https://github.com/davandbau/claude-code-memory#readme",
+  "homepage": "https://github.com/davandbau/paramem#readme",
   "dependencies": {
     "chokidar": "^3.6.0",
     "picocolors": "^1.0.1"

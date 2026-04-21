@@ -4,6 +4,26 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-04-21
+
+### Changed
+
+- **Package renamed from `claude-code-memory` to `paramem`** after discovering a name collision on the npm registry. The GitHub repository was renamed from `davandbau/claude-code-memory` to `davandbau/paramem`.
+- **CLI binary renamed from `ccm` to `paramem`**. The short `ccm` alias is gone (it was silently dropped by `npm` anyway when two bin entries pointed at the same file).
+- **Service labels renamed**: `com.claude-code-memory.*` → `com.paramem.*` (launchd), `claude-code-memory-*.service` → `paramem-*.service` (systemd). Run `paramem init` after upgrading — the old labels are not automatically removed.
+- **Config filename renamed**: `.claude-memory.json` → `.paramem.json`. The loader falls back to the old name for one release, so existing configs keep working during migration.
+- **Environment variable renamed**: `MEMORY_REPO` → `PARAMEM_REPO`. The loader falls back to `MEMORY_REPO` for one release.
+- **Hook dedup matcher** (v0.2.1's `isOurHookCommand`) now recognizes both `paramem` and legacy `ccm` in commands so that `paramem init` on a machine that had the old `ccm` hooks installed cleanly strips them before wiring up the new ones.
+
+### Migration from v0.2.1
+
+```bash
+ccm uninstall                                      # old bash-scriptless version
+npm uninstall -g claude-code-memory                # if you installed from the old name
+npm install -g github:davandbau/paramem            # new name
+paramem init                                        # re-wires everything
+```
+
 ## [0.2.1] — 2026-04-21
 
 ### Fixed

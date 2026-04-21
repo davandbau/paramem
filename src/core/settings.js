@@ -36,8 +36,15 @@ function isOurHookCommand(cmd, subcommand) {
   const suffix = ` hook ${subcommand}`;
   if (!cmd.endsWith(suffix)) return false;
   const head = cmd.slice(0, -suffix.length).trim();
-  // Head must look like a path that invokes ccm (ends in `ccm` or `cli.js`).
-  return head.endsWith("ccm") || head.endsWith("cli.js") || head.endsWith(".js");
+  // Head must look like an invocation of this tool:
+  // - bare binary (ends in `paramem`, or legacy `ccm`)
+  // - node script (ends in `cli.js` or any `.js`)
+  return (
+    head.endsWith("paramem") ||
+    head.endsWith("ccm") ||           // legacy, pre-rename
+    head.endsWith("cli.js") ||
+    head.endsWith(".js")
+  );
 }
 
 export function mergeHooks(ccmBin) {
@@ -105,23 +112,24 @@ export function settingsSummary() {
 }
 
 /**
- * Resolve the absolute path to the ccm entry script for use in launchd plists
- * and settings.json hooks. We intentionally refuse to return a relative path:
- * launchd/systemd run from arbitrary cwds, and Claude Code hooks run from the
- * cwd of each session.
+ * Resolve the absolute path to the paramem entry script for use in launchd
+ * plists and settings.json hooks. We intentionally refuse to return a relative
+ * path: launchd/systemd run from arbitrary cwds, and Claude Code hooks run
+ * from the cwd of each session.
  */
-export function resolveCcmBin() {
-  if (process.env.CCM_BIN) return path.resolve(process.env.CCM_BIN);
+export function resolveBin() {
+  if (process.env.PARAMEM_BIN) return path.resolve(process.env.PARAMEM_BIN);
+  if (process.env.CCM_BIN) return path.resolve(process.env.CCM_BIN); // legacy
   const argv1 = process.argv[1];
   if (argv1) {
     const resolved = path.resolve(argv1);
     if (path.isAbsolute(resolved)) return resolved;
   }
-  // Fall back to the bare name; PATH lookup will handle it for user-invoked
-  // commands, but launchd entries will have a hard time — callers should
-  // provide CCM_BIN or ensure argv[1] is usable.
-  return "ccm";
+  return "paramem";
 }
+
+// Legacy export for call sites not yet migrated.
+export const resolveCcmBin = resolveBin;
 
 // Exported for tests.
 export const _internal = { isOurHookCommand };

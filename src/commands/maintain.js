@@ -127,7 +127,7 @@ export async function runMaintain(args) {
   }
 
   if (!fs.existsSync(path.join(repo, ".git"))) {
-    err(`not initialized: ${repo} (run 'ccm init' first)`);
+    err(`not initialized: ${repo} (run 'paramem init' first)`);
     process.exit(1);
   }
 
@@ -150,7 +150,7 @@ export async function runMaintain(args) {
 
   // Dry-run is read-only and shouldn't block on the sync lock.
   if (flags.dryRun) {
-    heading("claude-code-memory maintenance (dry-run)");
+    heading("paramem maintenance (dry-run)");
     ensureMaintenanceAssets(repo);
     const rid = runId();
     const promptFile = cfg.maintenance.promptFile
@@ -179,7 +179,7 @@ export async function runMaintain(args) {
   }
 
   try {
-    heading("claude-code-memory maintenance");
+    heading("paramem maintenance");
     ensureMaintenanceAssets(repo);
 
     // Fresh pull before reasoning.

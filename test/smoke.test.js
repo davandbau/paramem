@@ -69,7 +69,7 @@ test("isOurHookCommand matches our shape regardless of ccm path", () => {
   assert.equal(fn("/usr/local/bin/ccm hook session-start", "session-start"), true);
   assert.equal(fn("/opt/homebrew/bin/ccm hook session-start", "session-start"), true);
   assert.equal(fn("/path/to/cli.js hook prompt-submit", "prompt-submit"), true);
-  assert.equal(fn("/usr/local/lib/node_modules/claude-code-memory/src/cli.js hook session-start", "session-start"), true);
+  assert.equal(fn("/usr/local/lib/node_modules/paramem/src/cli.js hook session-start", "session-start"), true);
 });
 
 test("isOurHookCommand rejects unrelated commands and subcommand mismatches", () => {

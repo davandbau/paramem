@@ -2,7 +2,7 @@
 
 This directory controls the autonomous memory maintenance pass.
 
-- **`prompt.md`** — the instructions Claude follows when `ccm maintain` runs. Edit to tune behavior (e.g. change the 180-day dormancy window, add new steps, change rules). Changes take effect on the next run.
+- **`prompt.md`** — the instructions Claude follows when `paramem maintain` runs. Edit to tune behavior (e.g. change the 180-day dormancy window, add new steps, change rules). Changes take effect on the next run.
 - **`ledger.jsonl`** — append-only decision log. Each line is one action taken by a maintenance run: what was moved/merged/summarized, when, why, and under which run ID.
 
 ## Querying the ledger
@@ -41,7 +41,7 @@ git show $commit^:daily/2026-03-14.md   # the commit before maintenance
 Set `maintenance.enabled = false` in `.claude-memory.json` at the repo root, or run:
 
 ```bash
-ccm maintain --uninstall
+paramem maintain --uninstall
 ```
 
-…to remove the daily timer. The `ccm maintain` command still works manually, but no schedule.
+…to remove the daily timer. The `paramem maintain` command still works manually, but no schedule.

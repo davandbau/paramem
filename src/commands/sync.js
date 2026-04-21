@@ -8,7 +8,7 @@ import { ok, warn, info, err, heading } from "../core/logger.js";
 const HOSTNAME = os.hostname().split(".")[0];
 
 export async function runSync() {
-  heading("claude-code-memory sync");
+  heading("paramem sync");
   const cfg = loadConfig(repoPath());
   const acquired = await acquire({ waitMs: 20_000 });
   if (!acquired) { err("lock busy; try again in a moment"); process.exit(1); }

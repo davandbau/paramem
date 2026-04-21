@@ -24,10 +24,10 @@ function parseFlags(args) {
 
 export async function runInit(args) {
   const flags = parseFlags(args);
-  if (flags.path) process.env.MEMORY_REPO = flags.path;
+  if (flags.path) process.env.PARAMEM_REPO = flags.path;
 
   const repo = repoPath();
-  heading("claude-code-memory init");
+  heading("paramem init");
   info(`target: ${repo}`);
 
   // 1. Dependencies
@@ -48,7 +48,7 @@ export async function runInit(args) {
     if (gi.status !== 0) { err("git init failed"); process.exit(1); }
     copyStarterContent(repo);
     spawnSync("git", ["-C", repo, "add", "-A"], { stdio: "inherit" });
-    spawnSync("git", ["-C", repo, "commit", "-m", "chore: bootstrap claude-code-memory"], { stdio: "inherit" });
+    spawnSync("git", ["-C", repo, "commit", "-m", "chore: bootstrap paramem"], { stdio: "inherit" });
     if (flags.remote) {
       spawnSync("git", ["-C", repo, "remote", "add", "origin", flags.remote], { stdio: "inherit" });
       warn(`remote added as 'origin': ${flags.remote}. push manually when ready: git -C ${repo} push -u origin main`);
@@ -81,12 +81,12 @@ export async function runInit(args) {
 
   heading("done");
   info(`tail logs:    tail -f ${repo}/.logs/watchdog.log ${repo}/.logs/puller.log`);
-  info(`status:       ccm status`);
-  info(`uninstall:    ccm uninstall`);
+  info(`status:       paramem status`);
+  info(`uninstall:    paramem uninstall`);
   info("");
   info("autonomous maintenance is opt-in. To enable:");
-  info("  ccm maintain --install     # schedule daily (03:17 local by default)");
-  info("  ccm maintain               # run one pass now");
+  info("  paramem maintain --install     # schedule daily (03:17 local by default)");
+  info("  paramem maintain               # run one pass now");
   info("requires the 'claude' CLI (Claude Code MAX subscription, uses your OAuth session — no API key)");
   info("");
   info("new Claude Code sessions will auto-load memory via SessionStart hook");

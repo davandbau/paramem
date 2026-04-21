@@ -11,11 +11,11 @@ import {
 } from "./paths.js";
 
 const LABELS = {
-  watchdog: "com.claude-code-memory.watchdog",
-  puller: "com.claude-code-memory.puller",
+  watchdog: "com.paramem.watchdog",
+  puller: "com.paramem.puller",
 };
 
-const MAINTAIN_LABEL = "com.claude-code-memory.maintain";
+const MAINTAIN_LABEL = "com.paramem.maintain";
 
 function escapeXml(v) {
   return String(v)
@@ -121,9 +121,9 @@ function installSystemd({ ccmBin, intervalSeconds }) {
     INTERVAL: String(intervalSeconds),
   };
   const files = [
-    ["claude-code-memory-watchdog.service", "systemd-watchdog.service"],
-    ["claude-code-memory-pull.service", "systemd-pull.service"],
-    ["claude-code-memory-pull.timer", "systemd-pull.timer"],
+    ["paramem-watchdog.service", "systemd-watchdog.service"],
+    ["paramem-pull.service", "systemd-pull.service"],
+    ["paramem-pull.timer", "systemd-pull.timer"],
   ];
   for (const [dest, tpl] of files) {
     fs.writeFileSync(
@@ -135,23 +135,23 @@ function installSystemd({ ccmBin, intervalSeconds }) {
   runSystemctl([
     "enable",
     "--now",
-    "claude-code-memory-watchdog.service",
-    "claude-code-memory-pull.timer",
+    "paramem-watchdog.service",
+    "paramem-pull.timer",
   ]);
   return true;
 }
 
 function uninstallSystemd() {
   runSystemctl(
-    ["disable", "--now", "claude-code-memory-watchdog.service", "claude-code-memory-pull.timer"],
+    ["disable", "--now", "paramem-watchdog.service", "paramem-pull.timer"],
     { ignoreFailure: true }
   );
   const dir = systemdUserDir();
   let removed = false;
   for (const f of [
-    "claude-code-memory-watchdog.service",
-    "claude-code-memory-pull.service",
-    "claude-code-memory-pull.timer",
+    "paramem-watchdog.service",
+    "paramem-pull.service",
+    "paramem-pull.timer",
   ]) {
     const p = path.join(dir, f);
     if (fs.existsSync(p)) {
@@ -206,15 +206,15 @@ export function installMaintenanceTimer({ ccmBin, hour, minute }) {
       MINUTE: String(minute).padStart(2, "0"),
     };
     fs.writeFileSync(
-      path.join(dir, "claude-code-memory-maintain.service"),
+      path.join(dir, "paramem-maintain.service"),
       render(path.join(templatesDir(), "systemd-maintain.service"), substitutions)
     );
     fs.writeFileSync(
-      path.join(dir, "claude-code-memory-maintain.timer"),
+      path.join(dir, "paramem-maintain.timer"),
       render(path.join(templatesDir(), "systemd-maintain.timer"), substitutions)
     );
     runSystemctl(["daemon-reload"]);
-    runSystemctl(["enable", "--now", "claude-code-memory-maintain.timer"]);
+    runSystemctl(["enable", "--now", "paramem-maintain.timer"]);
     return true;
   }
   throw new Error(`unsupported platform: ${os_}`);
@@ -232,11 +232,11 @@ export function uninstallMaintenanceTimer() {
     return false;
   }
   if (os_ === "linux") {
-    runSystemctl(["disable", "--now", "claude-code-memory-maintain.timer"], { ignoreFailure: true });
+    runSystemctl(["disable", "--now", "paramem-maintain.timer"], { ignoreFailure: true });
     let removed = false;
     for (const f of [
-      "claude-code-memory-maintain.service",
-      "claude-code-memory-maintain.timer",
+      "paramem-maintain.service",
+      "paramem-maintain.timer",
     ]) {
       const p = path.join(systemdUserDir(), f);
       if (fs.existsSync(p)) {
@@ -264,9 +264,9 @@ export function serviceStatus() {
     const r = spawnSync(
       "systemctl",
       ["--user", "is-active",
-        "claude-code-memory-watchdog.service",
-        "claude-code-memory-pull.timer",
-        "claude-code-memory-maintain.timer"],
+        "paramem-watchdog.service",
+        "paramem-pull.timer",
+        "paramem-maintain.timer"],
       { encoding: "utf8" }
     );
     return (r.stdout || "").trim();

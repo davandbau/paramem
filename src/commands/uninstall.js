@@ -4,7 +4,7 @@ import { repoPath } from "../core/paths.js";
 import { ok, info, heading } from "../core/logger.js";
 
 export function runUninstall() {
-  heading("claude-code-memory uninstall");
+  heading("paramem uninstall");
   const removedSvc = uninstall();
   ok(`watchdog + puller ${removedSvc ? "removed" : "not installed"}`);
 

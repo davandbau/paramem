@@ -1,10 +1,10 @@
 [Unit]
-Description=claude-code-memory sync watchdog
+Description=paramem sync watchdog
 After=network-online.target
 
 [Service]
 Type=simple
-Environment=MEMORY_REPO={{REPO}}
+Environment=PARAMEM_REPO={{REPO}}
 ExecStart={{NODE}} {{CCM_BIN}} watch
 Restart=always
 RestartSec=10

@@ -24,7 +24,7 @@ export async function runInbox(args) {
   const repo = repoPath();
   const inboxDir = path.join(repo, "inbox");
   if (!fs.existsSync(path.join(repo, ".git"))) {
-    err(`not initialized: ${repo} (run 'ccm init' first)`);
+    err(`not initialized: ${repo} (run 'paramem init' first)`);
     process.exit(1);
   }
   fs.mkdirSync(inboxDir, { recursive: true });
@@ -33,7 +33,7 @@ export async function runInbox(args) {
   let source;
 
   if (args.length === 0) {
-    err("usage: ccm inbox <text|file|->\nexamples:\n  ccm inbox 'a freeform note'\n  ccm inbox notes.md\n  echo '...' | ccm inbox -");
+    err("usage: paramem inbox <text|file|->\nexamples:\n  paramem inbox 'a freeform note'\n  paramem inbox notes.md\n  echo '...' | paramem inbox -");
     process.exit(2);
   }
 
@@ -72,5 +72,5 @@ export async function runInbox(args) {
   fs.writeFileSync(outPath, content.endsWith("\n") ? content : content + "\n");
 
   ok(`queued: ${path.relative(repo, outPath)}`);
-  info("will be classified on the next maintenance pass (run 'ccm maintain --force' to classify now)");
+  info("will be classified on the next maintenance pass (run 'paramem maintain --force' to classify now)");
 }

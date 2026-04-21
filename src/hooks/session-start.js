@@ -52,7 +52,7 @@ export function runSessionStart(ccmBin) {
 
   const cfg = loadConfig(repo);
   const parts = [
-    "# Shared memory (auto-loaded by claude-code-memory)\n\n",
+    "# Shared memory (auto-loaded by paramem)\n\n",
     "This content comes from the git-backed memory store mounted at the ",
     "configured location. Writes to files in this repo are synced to your remote ",
     "within seconds. To save a new memory, edit or create the appropriate file ",

@@ -11,7 +11,7 @@ import { runInbox } from "./commands/inbox.js";
 import { runWatchdog } from "./core/watchdog.js";
 import { runSessionStart } from "./hooks/session-start.js";
 import { runPromptSubmit } from "./hooks/prompt-submit.js";
-import { resolveCcmBin } from "./core/settings.js";
+import { resolveBin } from "./core/settings.js";
 import { err } from "./core/logger.js";
 
 const VERSION = (() => {
@@ -24,40 +24,41 @@ const VERSION = (() => {
 })();
 
 function usage() {
-  process.stdout.write(`claude-code-memory v${VERSION}
+  process.stdout.write(`paramem v${VERSION}
 
-Persistent, git-synced memory for Claude Code.
+Persistent, git-synced PARA memory for Claude Code.
 
 Usage:
-  ccm init [remote-url] [--empty] [--path <dir>]
+  paramem init [remote-url] [--empty] [--path <dir>]
       Clone or create a memory repo, install services, wire hooks.
 
-  ccm status
+  paramem status
       Show repo SHA, service state, hook registration, recent logs.
 
-  ccm sync
+  paramem sync
       Force one pull+commit+push cycle.
 
-  ccm maintain [--dry-run] [--force] [--install] [--uninstall]
+  paramem maintain [--dry-run] [--force] [--install] [--uninstall]
       Run one autonomous maintenance pass (uses claude -p + MAX subscription).
       --install schedules a daily timer; --uninstall removes it.
 
-  ccm inbox <text|file|->
+  paramem inbox <text|file|->
       Queue freeform content for the next maintenance pass to classify.
 
-  ccm uninstall
+  paramem uninstall
       Stop services and remove hooks. Memory repo is left intact.
 
 Internal (invoked by services/hooks):
-  ccm watch                Run the file-system watchdog loop.
-  ccm pull                 Run a single git pull with lock.
-  ccm hook <event>         Emit JSON for a Claude Code hook.
+  paramem watch            Run the file-system watchdog loop.
+  paramem pull             Run a single git pull with lock.
+  paramem hook <event>     Emit JSON for a Claude Code hook.
                            Events: session-start, prompt-submit
 
 Environment:
-  MEMORY_REPO              Override repo path (default: ~/.claude/memory).
+  PARAMEM_REPO             Override repo path (default: ~/.claude/memory).
+  PARAMEM_BIN              Override the bin path used in generated hooks/services.
 
-More: https://github.com/davandbau/claude-code-memory
+More: https://github.com/davandbau/paramem
 `);
 }
 
@@ -91,15 +92,15 @@ try {
       break;
     case "hook": {
       const sub = rest[0];
-      if (sub === "session-start") runSessionStart(resolveCcmBin());
-      else if (sub === "prompt-submit") runPromptSubmit(resolveCcmBin());
+      if (sub === "session-start") runSessionStart(resolveBin());
+      else if (sub === "prompt-submit") runPromptSubmit(resolveBin());
       else { err(`unknown hook event: ${sub}`); process.exit(2); }
       break;
     }
     case "--version":
     case "-v":
     case "version":
-      process.stdout.write(`claude-code-memory v${VERSION}\n`);
+      process.stdout.write(`paramem v${VERSION}\n`);
       break;
     case "--help":
     case "-h":

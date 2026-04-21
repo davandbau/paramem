@@ -1,9 +1,9 @@
 [Unit]
-Description=claude-code-memory autonomous maintenance
+Description=paramem autonomous maintenance
 
 [Service]
 Type=oneshot
-Environment=MEMORY_REPO={{REPO}}
+Environment=PARAMEM_REPO={{REPO}}
 ExecStart={{NODE}} {{CCM_BIN}} maintain
 StandardOutput=append:{{REPO}}/.logs/maintain.stdout.log
 StandardError=append:{{REPO}}/.logs/maintain.stderr.log

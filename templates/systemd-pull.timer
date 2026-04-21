@@ -1,11 +1,11 @@
 [Unit]
-Description=claude-code-memory pull every {{INTERVAL}}s
+Description=paramem pull every {{INTERVAL}}s
 
 [Timer]
 OnBootSec=30
 OnUnitActiveSec={{INTERVAL}}
 AccuracySec=5
-Unit=claude-code-memory-pull.service
+Unit=paramem-pull.service
 
 [Install]
 WantedBy=timers.target

@@ -18,10 +18,10 @@ function tail(file, n = 5) {
 
 export function runStatus() {
   const repo = repoPath();
-  heading("claude-code-memory status");
+  heading("paramem status");
   info(`repo: ${repo}`);
   if (!fs.existsSync(path.join(repo, ".git"))) {
-    warn("not initialized — run: ccm init <git-url>");
+    warn("not initialized — run: paramem init <git-url>");
     return;
   }
 
@@ -29,7 +29,7 @@ export function runStatus() {
   const remote = remoteHeadSha();
   info(`local HEAD:  ${local || "(none)"}`);
   info(`remote HEAD: ${remote || "(not fetched)"}`);
-  if (local && remote && local !== remote) warn("local and remote HEAD diverge — try: ccm sync");
+  if (local && remote && local !== remote) warn("local and remote HEAD diverge — try: paramem sync");
   else if (local && remote) ok("in sync with origin/main");
 
   heading("services");

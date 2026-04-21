@@ -1,8 +1,8 @@
 # Memory Index
 
 This is your persistent memory, auto-loaded by Claude Code on every session
-through `claude-code-memory`. Writes are synced to your git remote within
-seconds by a local watchdog. Other machines running `ccm` pull every 60s.
+through `paramem`. Writes are synced to your git remote within
+seconds by a local watchdog. Other machines running `paramem` pull every 60s.
 
 Edit these files directly to shape what Claude sees. Update the index below
 when you add a new memory file.

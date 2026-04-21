@@ -28,14 +28,18 @@ export const DEFAULT_CONFIG = {
 };
 
 export function loadConfig(cwd = repoPath()) {
-  const p = path.join(cwd, ".claude-memory.json");
-  if (!fs.existsSync(p)) return DEFAULT_CONFIG;
-  try {
-    const raw = JSON.parse(fs.readFileSync(p, "utf8"));
-    return deepMerge(DEFAULT_CONFIG, raw);
-  } catch {
-    return DEFAULT_CONFIG;
+  // Prefer `.paramem.json`; fall back to legacy `.claude-memory.json`.
+  for (const name of [".paramem.json", ".claude-memory.json"]) {
+    const p = path.join(cwd, name);
+    if (!fs.existsSync(p)) continue;
+    try {
+      const raw = JSON.parse(fs.readFileSync(p, "utf8"));
+      return deepMerge(DEFAULT_CONFIG, raw);
+    } catch {
+      return DEFAULT_CONFIG;
+    }
   }
+  return DEFAULT_CONFIG;
 }
 
 function deepMerge(a, b) {

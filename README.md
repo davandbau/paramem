@@ -1,4 +1,4 @@
-# claude-code-memory
+# paramem
 
 **Persistent, git-synced memory for [Claude Code](https://docs.claude.com/en/docs/claude-code/overview).**
 Your notes, projects, preferences — in every session, across every machine. Zero Anthropic API cost; uses your Claude Code MAX subscription.
@@ -11,15 +11,15 @@ Your notes, projects, preferences — in every session, across every machine. Ze
 ## Install
 
 ```bash
-npm install -g github:davandbau/claude-code-memory
-ccm init git@github.com:you/your-memory.git
+npm install -g github:davandbau/paramem
+paramem init git@github.com:you/your-memory.git
 ```
 
 Requires Node 20+, git, and the `claude` CLI (only if you want the nightly organizer). Works on macOS and Linux.
 
 That's setup. Open a new Claude Code session and your memory is already loaded.
 
-> No memory repo yet? Run `ccm init --empty` instead — it creates a starter PARA structure at `~/.claude/memory` that you can push to GitHub (or any git remote) later.
+> No memory repo yet? Run `paramem init --empty` instead — it creates a starter PARA structure at `~/.claude/memory` that you can push to GitHub (or any git remote) later.
 
 ---
 
@@ -33,9 +33,9 @@ You don't really *run* commands. You just write files.
 
 ```bash
 $EDITOR ~/.claude/memory/projects.md              # your notes sync in seconds
-ccm inbox "prefer terse bullets over prose"       # dump unstructured thoughts
-ccm inbox notes.md                                # or a file
-echo "..." | ccm inbox -                          # or stdin
+paramem inbox "prefer terse bullets over prose"       # dump unstructured thoughts
+paramem inbox notes.md                                # or a file
+echo "..." | paramem inbox -                          # or stdin
 ```
 
 Everything under `~/.claude/memory/` is committed and pushed to your remote automatically within about 5 seconds. Other machines pull every 60 seconds. Every new Claude Code session loads your `MEMORY.md` index, active projects, areas, profile, and latest daily note as context — regardless of what directory you started Claude from.
@@ -47,8 +47,8 @@ Everything under `~/.claude/memory/` is committed and pushed to your remote auto
 Once a day, an autonomous agent walks through your memory, classifies whatever's in `inbox/` into the right PARA location (projects, areas, resources, daily notes, or a new topic file), archives completed projects, rolls up old daily notes, dedupes resources, and fixes the index.
 
 ```bash
-ccm maintain --install     # schedules it daily at 03:17 local
-ccm maintain               # or run one pass now
+paramem maintain --install     # schedules it daily at 03:17 local
+paramem maintain               # or run one pass now
 ```
 
 Nothing is deleted — everything is a move or a merge. Every decision is one JSON line in `maintenance/ledger.jsonl` (source, target, reason, run ID), so any pass can be understood after the fact or undone with a single `git revert`.
@@ -60,7 +60,7 @@ Uses the `claude` CLI running on your MAX subscription — no API key, no separa
 ## Troubleshooting
 
 ```bash
-ccm status                         # what's running, what's stale, log tails
+paramem status                         # what's running, what's stale, log tails
 ```
 
 Most issues reveal themselves in `~/.claude/memory/.logs/{watchdog,puller,maintenance}.log`.
@@ -70,7 +70,7 @@ Most issues reveal themselves in `~/.claude/memory/.logs/{watchdog,puller,mainte
 ## Uninstall
 
 ```bash
-ccm uninstall              # stops services and removes hooks; your data stays
+paramem uninstall              # stops services and removes hooks; your data stays
 ```
 
 To also delete the data: `rm -rf ~/.claude/memory`.
@@ -133,7 +133,7 @@ your-memory/
 <details>
 <summary><strong>Config</strong></summary>
 
-Drop `.claude-memory.json` at your memory repo root to override defaults:
+Drop `.paramem.json` at your memory repo root to override defaults:
 
 ```json
 {
@@ -163,7 +163,7 @@ Drop `.claude-memory.json` at your memory repo root to override defaults:
 ```
 
 - **`coordinatorHost`** — only the machine with this hostname runs maintenance. `null` means any machine can (harmless but wasteful on a fleet).
-- **`minHoursBetweenRuns`** — throttle. `ccm maintain --force` bypasses.
+- **`minHoursBetweenRuns`** — throttle. `paramem maintain --force` bypasses.
 - **`model`** — override the model for `claude -p`. Defaults to Claude Code's default.
 - **`promptFile`** — point at a custom maintenance prompt file (relative to repo root).
 
@@ -208,16 +208,16 @@ grep '"action":"classify_inbox"' maintenance/ledger.jsonl | jq
 <details>
 <summary><strong>Command reference</strong></summary>
 
-Everyday: `ccm init`, `ccm inbox`, `ccm status`, `ccm uninstall`.
+Everyday: `paramem init`, `paramem inbox`, `paramem status`, `paramem uninstall`.
 
 Occasional:
-- `ccm sync` — force a pull + commit + push right now
-- `ccm maintain` — run one maintenance pass now
-- `ccm maintain --dry-run` — preview without calling Claude or taking the sync lock
-- `ccm maintain --force` — bypass the 20 h throttle and the coordinator-host check
-- `ccm maintain --install` / `--uninstall` — schedule or remove the daily timer
+- `paramem sync` — force a pull + commit + push right now
+- `paramem maintain` — run one maintenance pass now
+- `paramem maintain --dry-run` — preview without calling Claude or taking the sync lock
+- `paramem maintain --force` — bypass the 20 h throttle and the coordinator-host check
+- `paramem maintain --install` / `--uninstall` — schedule or remove the daily timer
 
-Internal (invoked by the services and hooks — don't run these by hand): `ccm watch`, `ccm pull`, `ccm hook <event>`.
+Internal (invoked by the services and hooks — don't run these by hand): `paramem watch`, `paramem pull`, `paramem hook <event>`.
 
 </details>
 
@@ -244,7 +244,7 @@ v0.2 targets macOS and Linux. Windows via WSL works. Native Windows is planned.
 The `UserPromptSubmit` hook returns in ~100 ms and kicks its git pull into a detached background process. You won't notice it.
 
 **Can I use a non-GitHub remote?**
-Yes. `ccm init <any-git-url>` works with GitLab, Bitbucket, self-hosted, whatever git understands.
+Yes. `paramem init <any-git-url>` works with GitLab, Bitbucket, self-hosted, whatever git understands.
 
 ---
 
