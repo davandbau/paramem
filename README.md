@@ -23,6 +23,10 @@ That's setup. Open a new Claude Code session and your memory is already loaded.
 
 ---
 
+## How it's organized — PARA
+
+[PARA](https://fortelabs.com/blog/para/) — **P**rojects, **A**reas, **R**esources, **A**rchives — is Tiago Forte's four-bucket framework for organizing anything durable. Projects are finite efforts with a deadline. Areas are ongoing responsibilities without one. Resources are reference material. Archives hold what's inactive. Your memory repo uses this shape by default because it maps cleanly onto what Claude Code needs to remember across sessions — and because the nightly organizer knows exactly where to route each kind of thought.
+
 ## Use
 
 You don't really *run* commands. You just write files.
