@@ -15,6 +15,8 @@ const LABELS = {
   puller: "com.claude-code-memory.puller",
 };
 
+const MAINTAIN_LABEL = "com.claude-code-memory.maintain";
+
 function render(tplPath, substitutions) {
   let content = fs.readFileSync(tplPath, "utf8");
   for (const [k, v] of Object.entries(substitutions)) {
@@ -154,19 +156,103 @@ function runSystemctl(args, { ignoreFailure = false } = {}) {
   }
 }
 
+export function installMaintenanceTimer({ ccmBin, hour, minute }) {
+  const os_ = platform();
+  if (os_ === "darwin") {
+    const dir = launchAgentsDir();
+    fs.mkdirSync(dir, { recursive: true });
+    const substitutions = {
+      HOME,
+      REPO: repoPath(),
+      NODE: process.execPath,
+      CCM_BIN: ccmBin,
+      LABEL: MAINTAIN_LABEL,
+      HOUR: String(hour),
+      MINUTE: String(minute),
+      PATH: "/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin",
+    };
+    const dst = path.join(dir, `${MAINTAIN_LABEL}.plist`);
+    fs.writeFileSync(
+      dst,
+      render(path.join(templatesDir(), "launchd-maintain.plist"), substitutions)
+    );
+    spawnSync("launchctl", ["unload", dst], { stdio: "ignore" });
+    spawnSync("launchctl", ["load", dst], { stdio: "inherit" });
+    return true;
+  }
+  if (os_ === "linux") {
+    const dir = systemdUserDir();
+    fs.mkdirSync(dir, { recursive: true });
+    const substitutions = {
+      HOME,
+      REPO: repoPath(),
+      NODE: process.execPath,
+      CCM_BIN: ccmBin,
+      HOUR: String(hour).padStart(2, "0"),
+      MINUTE: String(minute).padStart(2, "0"),
+    };
+    fs.writeFileSync(
+      path.join(dir, "claude-code-memory-maintain.service"),
+      render(path.join(templatesDir(), "systemd-maintain.service"), substitutions)
+    );
+    fs.writeFileSync(
+      path.join(dir, "claude-code-memory-maintain.timer"),
+      render(path.join(templatesDir(), "systemd-maintain.timer"), substitutions)
+    );
+    runSystemctl(["daemon-reload"]);
+    runSystemctl(["enable", "--now", "claude-code-memory-maintain.timer"]);
+    return true;
+  }
+  throw new Error(`unsupported platform: ${os_}`);
+}
+
+export function uninstallMaintenanceTimer() {
+  const os_ = platform();
+  if (os_ === "darwin") {
+    const f = path.join(launchAgentsDir(), `${MAINTAIN_LABEL}.plist`);
+    if (fs.existsSync(f)) {
+      spawnSync("launchctl", ["unload", f], { stdio: "ignore" });
+      fs.unlinkSync(f);
+      return true;
+    }
+    return false;
+  }
+  if (os_ === "linux") {
+    runSystemctl(["disable", "--now", "claude-code-memory-maintain.timer"], { ignoreFailure: true });
+    let removed = false;
+    for (const f of [
+      "claude-code-memory-maintain.service",
+      "claude-code-memory-maintain.timer",
+    ]) {
+      const p = path.join(systemdUserDir(), f);
+      if (fs.existsSync(p)) {
+        fs.unlinkSync(p);
+        removed = true;
+      }
+    }
+    runSystemctl(["daemon-reload"], { ignoreFailure: true });
+    return removed;
+  }
+  return false;
+}
+
 export function serviceStatus() {
   const os_ = platform();
   if (os_ === "darwin") {
     const r = spawnSync("launchctl", ["list"], { encoding: "utf8" });
+    const labels = [...Object.values(LABELS), MAINTAIN_LABEL];
     const lines = (r.stdout || "").split("\n").filter((l) =>
-      Object.values(LABELS).some((label) => l.includes(label))
+      labels.some((label) => l.includes(label))
     );
     return lines.length ? lines.join("\n") : "not loaded";
   }
   if (os_ === "linux") {
     const r = spawnSync(
       "systemctl",
-      ["--user", "is-active", "claude-code-memory-watchdog.service", "claude-code-memory-pull.timer"],
+      ["--user", "is-active",
+        "claude-code-memory-watchdog.service",
+        "claude-code-memory-pull.timer",
+        "claude-code-memory-maintain.timer"],
       { encoding: "utf8" }
     );
     return (r.stdout || "").trim();

@@ -4,13 +4,15 @@ import { runUninstall } from "./commands/uninstall.js";
 import { runStatus } from "./commands/status.js";
 import { runSync } from "./commands/sync.js";
 import { runPull } from "./commands/pull.js";
+import { runMaintain } from "./commands/maintain.js";
+import { runInbox } from "./commands/inbox.js";
 import { runWatchdog } from "./core/watchdog.js";
 import { runSessionStart } from "./hooks/session-start.js";
 import { runPromptSubmit } from "./hooks/prompt-submit.js";
 import { resolveCcmBin } from "./core/settings.js";
 import { err } from "./core/logger.js";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 
 function usage() {
   process.stdout.write(`claude-code-memory v${VERSION}
@@ -26,6 +28,13 @@ Usage:
 
   ccm sync
       Force one pull+commit+push cycle.
+
+  ccm maintain [--dry-run] [--force] [--install] [--uninstall]
+      Run one autonomous maintenance pass (uses claude -p + MAX subscription).
+      --install schedules a daily timer; --uninstall removes it.
+
+  ccm inbox <text|file|->
+      Queue freeform content for the next maintenance pass to classify.
 
   ccm uninstall
       Stop services and remove hooks. Memory repo is left intact.
@@ -58,6 +67,12 @@ try {
       break;
     case "sync":
       await runSync();
+      break;
+    case "maintain":
+      await runMaintain(rest);
+      break;
+    case "inbox":
+      await runInbox(rest);
       break;
     case "pull":
       runPull();

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>{{LABEL}}</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>{{NODE}}</string>
+    <string>{{CCM_BIN}}</string>
+    <string>maintain</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>{{HOUR}}</integer>
+    <key>Minute</key>
+    <integer>{{MINUTE}}</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>{{REPO}}/.logs/maintain.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>{{REPO}}/.logs/maintain.stderr.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>{{PATH}}</string>
+    <key>HOME</key>
+    <string>{{HOME}}</string>
+    <key>MEMORY_REPO</key>
+    <string>{{REPO}}</string>
+  </dict>
+</dict>
+</plist>

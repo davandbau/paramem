@@ -7,13 +7,22 @@ export const DEFAULT_CONFIG = {
   pullIntervalSeconds: 60,
   debounceSeconds: 5,
   sessionStart: {
-    files: ["MEMORY.md", "projects.md", "user_profile.md"],
+    files: ["MEMORY.md", "projects.md", "areas.md", "user_profile.md"],
     includeLatestDailyNote: true,
     dailyNoteDir: "daily",
   },
   promptSubmit: {
     throttleSeconds: 30,
     notifyOnShaChange: true,
+  },
+  maintenance: {
+    enabled: true,
+    coordinatorHost: null,
+    minHoursBetweenRuns: 20,
+    cron: "17 3 * * *",
+    timeoutSeconds: 600,
+    promptFile: null,
+    model: null,
   },
   ignore: [".git", ".logs", ".state"],
 };

@@ -61,6 +61,9 @@ export async function runInit(args) {
   }
   ok(`repo ready: ${repo}`);
 
+  // 2b. Ensure maintenance assets exist even on a prior clone.
+  ensureMaintenanceAssets(repo);
+
   // 3. Services
   const ccmBin = resolveCcmBin();
   const cfg = loadConfig(repo);
@@ -80,7 +83,13 @@ export async function runInit(args) {
   info(`tail logs:    tail -f ${repo}/.logs/watchdog.log ${repo}/.logs/puller.log`);
   info(`status:       ccm status`);
   info(`uninstall:    ccm uninstall`);
-  info(`new Claude Code sessions will auto-load memory via SessionStart hook`);
+  info("");
+  info("autonomous maintenance is opt-in. To enable:");
+  info("  ccm maintain --install     # schedule daily (03:17 local by default)");
+  info("  ccm maintain               # run one pass now");
+  info("requires the 'claude' CLI (Claude Code MAX subscription, uses your OAuth session — no API key)");
+  info("");
+  info("new Claude Code sessions will auto-load memory via SessionStart hook");
 }
 
 function which(cmd) {
@@ -103,5 +112,24 @@ function copyRecursive(src, dest) {
     } else {
       fs.copyFileSync(s, d);
     }
+  }
+}
+
+function ensureMaintenanceAssets(repo) {
+  const src = path.join(templatesDir(), "starter");
+  const copies = [
+    ["maintenance/prompt.md", "maintenance/prompt.md"],
+    ["maintenance/README.md", "maintenance/README.md"],
+    ["maintenance/ledger.jsonl", "maintenance/ledger.jsonl"],
+    ["inbox/README.md", "inbox/README.md"],
+    ["inbox/processed/.gitkeep", "inbox/processed/.gitkeep"],
+  ];
+  for (const [rel, tpl] of copies) {
+    const target = path.join(repo, rel);
+    if (fs.existsSync(target)) continue;
+    const source = path.join(src, tpl);
+    if (!fs.existsSync(source)) continue;
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(source, target);
   }
 }

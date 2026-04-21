@@ -1,6 +1,6 @@
 {
   "name": "claude-code-memory",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Persistent, git-synced memory for Claude Code. PARA-organized context loaded automatically on every session, shared across machines in near-real time.",
   "type": "module",
   "bin": {

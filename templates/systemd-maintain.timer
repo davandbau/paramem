@@ -1,0 +1,11 @@
+[Unit]
+Description=claude-code-memory daily maintenance timer
+
+[Timer]
+OnCalendar=*-*-* {{HOUR}}:{{MINUTE}}:00
+Persistent=true
+AccuracySec=5min
+Unit=claude-code-memory-maintain.service
+
+[Install]
+WantedBy=timers.target

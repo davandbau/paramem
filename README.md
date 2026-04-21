@@ -73,14 +73,83 @@ That's it. Next time you launch Claude Code, the memory is auto-loaded via the `
 
 ## Commands
 
-| Command            | What it does                                              |
-| ------------------ | --------------------------------------------------------- |
-| `ccm init`         | Clone/create repo, install services, wire hooks           |
-| `ccm status`       | Show SHA, service state, hook registration, log tails     |
-| `ccm sync`         | Force one pull+commit+push cycle                          |
-| `ccm uninstall`    | Stop services, remove hooks (data is left intact)         |
+| Command                   | What it does                                                            |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `ccm init`                | Clone/create repo, install services, wire hooks                         |
+| `ccm status`              | Show SHA, service state, hook registration, maintenance state, log tails |
+| `ccm sync`                | Force one pull+commit+push cycle                                        |
+| `ccm maintain`            | Run one autonomous maintenance pass (ingest inbox, compact, archive…)   |
+| `ccm maintain --install`  | Schedule a daily maintenance timer                                      |
+| `ccm inbox <text\|file\|->` | Queue freeform content for the next maintenance pass                    |
+| `ccm uninstall`           | Stop services, remove hooks (data is left intact)                       |
 
 Internal commands (invoked by services/hooks — not typically run by hand): `ccm watch`, `ccm pull`, `ccm hook <event>`.
+
+## Autonomous maintenance
+
+The memory system organizes itself. On a schedule (default 03:17 local) or on demand (`ccm maintain`), an agent runs via `claude -p` on your Claude Code MAX subscription — no API key, no separate billing — and does the PARA housekeeping:
+
+- **Inbox classification**: `inbox/*.md` files get routed into the right PARA location (project, area, resource, daily note, or a new topic file). Ambiguous content falls through to today's daily note. Originals move to `inbox/processed/` — never deleted.
+- **Project compaction**: completed projects move from `projects.md` → `archive.md`.
+- **Areas hygiene**: dormant areas (no activity in 180 days) archive; project-in-area sections get relocated to `projects.md`; overlapping areas merge.
+- **Daily notes rollup**: notes >30 days old get a monthly summary in `archive.md`. The original daily files stay put.
+- **Resources dedup**: duplicates in `resources.md` merge.
+- **Index repair**: `MEMORY.md` is reconciled with what's actually in the repo.
+
+**Nothing is deleted.** Everything moves. The safety net is git history.
+
+### Provenance
+
+Every maintenance run writes one JSON line per action to `maintenance/ledger.jsonl`:
+
+```jsonl
+{"v":1,"at":"2026-04-21T03:17:00Z","run":"20260421T0317-a1b2","action":"summarize_dailies","sources":["daily/2026-03-01.md",…],"target":"archive.md","target_heading":"## 2026-03 Daily Notes","rationale":"monthly rollup"}
+```
+
+Run IDs map to git commits (`chore: memory maintenance (run <id>)`). To reconstruct any decision:
+
+```bash
+commit=$(git log --grep "run 20260421T0317" -1 --format=%H)
+git show $commit:maintenance/prompt.md   # what the prompt was
+git show $commit                          # exactly what changed
+git show $commit^:daily/2026-03-14.md    # an input at the time
+git revert $commit                        # undo the entire run
+```
+
+### Config
+
+Drop `.claude-memory.json` in the repo root to override defaults:
+
+```json
+{
+  "maintenance": {
+    "enabled": true,
+    "coordinatorHost": "my-macbook",
+    "minHoursBetweenRuns": 20,
+    "cron": "17 3 * * *",
+    "timeoutSeconds": 600,
+    "promptFile": null,
+    "model": null
+  }
+}
+```
+
+- **`coordinatorHost`**: only the machine with this hostname runs maintenance. Leave `null` to let any machine run (safe via locks, but wasteful).
+- **`minHoursBetweenRuns`**: throttle. `ccm maintain --force` bypasses it.
+- **`model`**: override the model passed to `claude -p`. Defaults to whatever `claude` uses.
+- **`promptFile`**: point at a custom prompt, relative to repo root. Defaults to `maintenance/prompt.md`.
+
+### Customizing the prompt
+
+The maintenance prompt lives at `maintenance/prompt.md` in your memory repo. Edit it to change rules (e.g. dormancy window from 180 to 90 days, add a new step, disable a step). Your change is versioned along with everything else. The prompt contains `{{RUN_ID}}`, `{{TODAY}}`, and `{{HOSTNAME}}` placeholders that the wrapper substitutes.
+
+### Disabling maintenance
+
+```bash
+ccm maintain --uninstall   # stops the daily timer
+```
+
+or set `maintenance.enabled = false` in `.claude-memory.json`.
 
 ## Repo layout (your memory repo)
 
