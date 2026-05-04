@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { claudeSettingsPath } from "./paths.js";
 
-const HOOK_SUBCOMMANDS = new Set(["session-start", "prompt-submit"]);
+const HOOK_SUBCOMMANDS = new Set(["session-start", "prompt-submit", "stop", "pre-compact"]);
 
 function loadSettings() {
   const p = claudeSettingsPath();
@@ -53,11 +53,14 @@ export function mergeHooks(ccmBin) {
   const events = {
     SessionStart: `${ccmBin} hook session-start`,
     UserPromptSubmit: `${ccmBin} hook prompt-submit`,
+    Stop: `${ccmBin} hook stop`,
+    PreCompact: `${ccmBin} hook pre-compact`,
   };
   let changed = false;
 
   for (const [event, cmd] of Object.entries(events)) {
-    const sub = event === "SessionStart" ? "session-start" : "prompt-submit";
+    const subMap = { SessionStart: "session-start", UserPromptSubmit: "prompt-submit", Stop: "stop", PreCompact: "pre-compact" };
+    const sub = subMap[event] || event.toLowerCase();
     const groups = (data.hooks[event] ||= []);
 
     // Strip any pre-existing ccm hooks for this event (stale paths, duplicates).
@@ -85,9 +88,8 @@ export function removeHooks() {
   if (!data.hooks) return false;
   let changed = false;
   for (const event of Object.keys(data.hooks)) {
-    const sub = event === "SessionStart" ? "session-start"
-      : event === "UserPromptSubmit" ? "prompt-submit"
-      : null;
+    const subMap = { SessionStart: "session-start", UserPromptSubmit: "prompt-submit", Stop: "stop", PreCompact: "pre-compact" };
+    const sub = subMap[event];
     if (!sub) continue;
     const newGroups = [];
     for (const g of data.hooks[event]) {

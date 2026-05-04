@@ -11,6 +11,8 @@ import { runInbox } from "./commands/inbox.js";
 import { runWatchdog } from "./core/watchdog.js";
 import { runSessionStart } from "./hooks/session-start.js";
 import { runPromptSubmit } from "./hooks/prompt-submit.js";
+import { runStop } from "./hooks/stop.js";
+import { runPreCompact } from "./hooks/pre-compact.js";
 import { resolveBin } from "./core/settings.js";
 import { err } from "./core/logger.js";
 
@@ -52,7 +54,7 @@ Internal (invoked by services/hooks):
   paramem watch            Run the file-system watchdog loop.
   paramem pull             Run a single git pull with lock.
   paramem hook <event>     Emit JSON for a Claude Code hook.
-                           Events: session-start, prompt-submit
+                           Events: session-start, prompt-submit, stop, pre-compact
 
 Environment:
   PARAMEM_REPO             Override repo path (default: ~/.claude/memory).
@@ -94,6 +96,8 @@ try {
       const sub = rest[0];
       if (sub === "session-start") runSessionStart(resolveBin());
       else if (sub === "prompt-submit") runPromptSubmit(resolveBin());
+      else if (sub === "stop") runStop();
+      else if (sub === "pre-compact") runPreCompact();
       else { err(`unknown hook event: ${sub}`); process.exit(2); }
       break;
     }
