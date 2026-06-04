@@ -205,6 +205,7 @@ export async function runMaintain(args) {
       addDirs: [repo],
       timeoutMs: cfg.maintenance.timeoutSeconds * 1000,
       model: cfg.maintenance.model,
+      permissionMode: cfg.maintenance.permissionMode,
       onLog: (stream, chunk) => {
         fs.appendFileSync(
           path.join(logsDir(), "maintenance.log"),

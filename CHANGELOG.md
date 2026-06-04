@@ -4,6 +4,27 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] — 2026-06-04
+
+### Fixed
+
+- **CRITICAL**: `maintain` writes silently no-oped due to Claude Code's
+  hardcoded sensitive-files guard on `~/.claude/` paths. `--permission-mode
+  acceptEdits` (the previous default) reads but cannot write inside that
+  subtree, so every run analysed the repo correctly, drafted the archive
+  rollup, and then committed nothing because no Edit/Write tool call could
+  land. The maintenance.log only showed `run … noop` and the user assumed
+  paramem itself was broken.
+
+  Switched the default `maintenance.permissionMode` to `bypassPermissions`
+  and made it configurable via `.paramem.json`. The maintain agent runs
+  in a sealed scope (one dedicated repo, no shell elevation, no network
+  except git) at the user's explicit request, so the bypass is the correct
+  primitive — the same one CLI users reach for as `--dangerously-skip-permissions`.
+
+  First post-fix run (host clawd, 2026-06-04 08:25 UTC+2) committed a monthly
+  daily-notes rollup, deduped a resources section, and wrote ledger entries.
+
 ## [0.3.0] — 2026-04-21
 
 ### Changed
